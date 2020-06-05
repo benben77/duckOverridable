@@ -38,7 +38,7 @@ calc(1, 2, 3, 4); // 3
 
 ### as methods
 
-Define a function:
+Use 'Field' to define fields-checking:
 
 ```
 const volume = Overridable(() => {
@@ -73,7 +73,7 @@ class B {
 }
 ```
 
-Use the methods:
+Use them:
 
 ```
 new A(1, 2).volume(3); // 6
