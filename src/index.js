@@ -46,6 +46,12 @@ function Field(key, type) {
     }
 }
 
+/**
+ * TODO
+ * 1. support custom type function
+ * 2. support typed array
+ */
+
 export {
     Field,
     Overridable,
