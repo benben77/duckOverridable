@@ -78,8 +78,8 @@ describe("Can use custom validator with methods", () => {
         return this.a * this.b;
     });
     func.override(Field('a', Validator(function(x) {
-        return x < 0;
-        // return this.a < 0;
+        // return x < 0;
+        return this.a < 0;
     })), Field('b', Number), function() {
         return -this.a * this.b;
     });

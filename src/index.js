@@ -10,32 +10,41 @@ function Overridable(cb) {
     const list = [];
     const func = function(...params) {
         for (let i = 0; i < list.length; i++) {
-            const { types, cb, fields } = list[i];
-            if (types.length !== params.length) continue;
-            const notMatch = types.some((type, idx) => !matchType.call(this, params[idx], type));
-            const fieldsNotMatch = fields.some(({ key, type }) => /*!(key in this)*/this[key] === undefined || !matchType.call(this, this[key], type));
-            if (!notMatch && !fieldsNotMatch) return cb.call(this, ...params);
+            const { matcher, cb } = list[i];
+            if (matcher.match(this, params)) return cb.call(this, ...params);
         }
         return cb.call(this, ...params);
     };
     func.override = function(...l) {
         const cb = l.pop();
-        const types = [];
-        const fields = [];
-        l.forEach(x => {
-            if (x instanceof Field) {
-                fields.push(x);
-            } else {
-                types.push(x);
-            }
-        });
         list.push({
-            types,
-            fields,
+            matcher: new Matcher(l),
             cb,
         });
     };
     return func;
+}
+
+function Matcher(l) {
+    const types = [];
+    const fields = [];
+    l.forEach(x => {
+        if (x instanceof Field) {
+            fields.push(x);
+        } else {
+            types.push(x);
+        }
+    });
+    this.types = types;
+    this.fields = fields;
+}
+Matcher.prototype.match = function(ctx, params) {
+    const { types, fields } = this;
+    if (types.length !== params.length) return false;
+    const notMatch = types.some((type, idx) => !matchType.call(ctx, params[idx], type));
+    if (notMatch) return false;
+    const fieldsNotMatch = fields.some(({ key, type }) => /*!(key in ctx)*/ctx[key] === undefined || !matchType.call(ctx, ctx[key], type));
+    return !fieldsNotMatch;
 }
 
 function Field(key, type) {
@@ -64,5 +73,6 @@ function Validator(cb) {
 export {
     Field,
     Validator,
+    Matcher,
     Overridable,
 };
