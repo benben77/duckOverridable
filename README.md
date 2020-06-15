@@ -79,3 +79,30 @@ Use them:
 new A(1, 2).volume(3); // 6
 new B(2).volume(3); // 12
 ```
+
+### use custom validator
+
+Define:
+
+```
+const func = Overridable((a, b) => {
+    return a * b;
+});
+func.override(Validator(x => x < 0), Number, (a, b) => {
+    return -a * b;
+});
+
+const func = Overridable(function() {
+    return this.a * this.b;
+});
+func.override(Field('a', Validator(x => x < 0)), Field('b', Number), function() {
+    return -this.a * this.b;
+});
+class C {
+    constructor(a, b) {
+        this.a = a;
+        this.b = b;
+    }
+}
+C.prototype.func = func;
+```
