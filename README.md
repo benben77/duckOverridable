@@ -138,3 +138,19 @@ func(['1', '2', '3']); // 6
 { list: [-1, 2, 3], func2 }.func2(); // 4
 { list: [-1, -2, -3], func2 }.func2(); // 6
 ```
+
+### Rest
+
+Use RestParams to skip rest params:
+
+```
+const func = Overridable(function() {
+    throw new Error('not implemented');
+});
+func.override(Number, Number, RestParams, function(...params) {
+    return params.reduce((sum, x) => sum + x, 0);
+});
+
+func(1, 2, 3); // 6
+func(1, 2, '3'); // '33'
+```

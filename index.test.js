@@ -1,5 +1,5 @@
 const duckOverridable = require('./dist/index.js');
-const { Overridable, Validator, Field, TypedList } = duckOverridable;
+const { Overridable, Validator, Field, TypedList, RestParams } = duckOverridable;
 
 describe("Can override function", () => {
     const calc = Overridable((a, b) => {
@@ -121,5 +121,19 @@ describe("Override with typed list", () => {
 
         expect({ list: [-1, 2, 3], func2 }.func2()).toBe(4);
         expect({ list: [-1, -2, -3], func2 }.func2()).toBe(6);
+    });
+});
+
+describe("Use RestParams", () => {
+    const func = Overridable(function() {
+        throw new Error('not implemented');
+    });
+    func.override(Number, Number, RestParams, function(...params) {
+        return params.reduce((sum, x) => sum + x, 0);
+    });
+
+    test("RestParams", () => {
+        expect(func(1, 2, 3)).toBe(6);
+        expect(func(1, 2, '3')).toBe('33');
     });
 });
