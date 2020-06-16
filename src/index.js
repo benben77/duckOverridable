@@ -1,5 +1,6 @@
 const matchType = function(item, type) {
     if (type instanceof Validator) return type.cb.call(this, item);
+    if (type instanceof TypedList) return (item instanceof Array) && !item.some(x => !matchType(x, type.type));
     if (type == null) return true;
     if (type === Number && typeof item === 'number') return true;
     if (type === String && typeof item === 'string') return true;
@@ -64,15 +65,23 @@ function Validator(cb) {
     }
 }
 
+function TypedList(type) {
+    if (this instanceof TypedList) {
+        this.type = type;
+    } else {
+        return new TypedList(type);
+    }
+}
+
 /**
  * TODO
- * 1. support typed array
- * 2. support rest
+ * support rest
  */
 
 export {
     Field,
     Validator,
     Matcher,
+    TypedList,
     Overridable,
 };

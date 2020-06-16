@@ -106,3 +106,35 @@ class C {
 }
 C.prototype.func = func;
 ```
+
+### Typed list
+
+Define:
+
+```
+const func = Overridable(function() {
+    throw new Error('not implemented');
+});
+func.override(TypedList(Number), function(list) {
+    return list.reduce((sum, x) => sum + x, 0);
+});
+func.override(TypedList(String), function(list) {
+    return list.reduce((sum, x) => sum + parseFloat(x, 10), 0);
+});
+
+const func2 = Overridable(function() {
+    return this.list.reduce((sum, x) => sum + x, 0);
+});
+func2.override(Field('list', TypedList(Validator(x => x < 0))), function() {
+    return this.list.reduce((sum, x) => sum - x, 0);
+});
+```
+
+Use:
+
+```
+func([1, 2, 3]); // 6
+func(['1', '2', '3']); // 6
+{ list: [-1, 2, 3], func2 }.func2(); // 4
+{ list: [-1, -2, -3], func2 }.func2(); // 6
+```

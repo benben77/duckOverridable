@@ -1,5 +1,5 @@
 const duckOverridable = require('./dist/index.js');
-const { Overridable, Validator, Field } = duckOverridable;
+const { Overridable, Validator, Field, TypedList } = duckOverridable;
 
 describe("Can override function", () => {
     const calc = Overridable((a, b) => {
@@ -94,5 +94,32 @@ describe("Can use custom validator with methods", () => {
     test("custom validator with methods", () => {
         expect(new C(2, 3).func()).toBe(6);
         expect(new C(-2, 3).func()).toBe(6);
+    });
+});
+
+describe("Override with typed list", () => {
+    const func = Overridable(function() {
+        throw new Error('not implemented');
+    });
+    func.override(TypedList(Number), function(list) {
+        return list.reduce((sum, x) => sum + x, 0);
+    });
+    func.override(TypedList(String), function(list) {
+        return list.reduce((sum, x) => sum + parseFloat(x, 10), 0);
+    });
+
+    const func2 = Overridable(function() {
+        return this.list.reduce((sum, x) => sum + x, 0);
+    });
+    func2.override(Field('list', TypedList(Validator(x => x < 0))), function() {
+        return this.list.reduce((sum, x) => sum - x, 0);
+    });
+
+    test("typed list", () => {
+        expect(func([1, 2, 3])).toBe(6);
+        expect(func(['1', '2', '3'])).toBe(6);
+
+        expect({ list: [-1, 2, 3], func2 }.func2()).toBe(4);
+        expect({ list: [-1, -2, -3], func2 }.func2()).toBe(6);
     });
 });
